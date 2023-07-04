@@ -1,0 +1,31 @@
+#chat-body {
+    margin-top: 2%;
+}
+.active-chat {
+    font-size: 1.2em;
+    margin: 5% auto 0;
+    width: 92%;
+    padding: 0.5em;
+    border-bottom: 1px solid #bbb;
+}
+.user-handle {
+    opacity: 0.6;
+}
+.recent-message {
+    color: #555;
+    margin-top: 0.5%;
+    margin-left: 1%;
+}
+.recent-messages-count {
+    border-radius: 32px;
+    -webkit-border-radius: 32px;
+    -moz-border-radius: 32px;
+    -ms-border-radius: 32px;
+    -o-border-radius: 32px;
+    color: #fff;
+    background-color: #2179e4;
+    margin-right: 0.5em;
+    padding: 0.2em 0.5em;
+    font-size: 0.7em;
+    margin-bottom: 1em; 
+}

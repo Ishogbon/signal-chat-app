@@ -1,0 +1,6 @@
+body {
+    margin: 0;
+}
+.active-nav {
+    border-bottom: 2px solid #fff;
+}
