@@ -1,6 +1,9 @@
 body {
     margin: 0;
 }
+.page-hider {
+    display: none;
+}
 .active-nav {
     border-bottom: 2px solid #fff;
 }

@@ -6,12 +6,18 @@ header {
     box-shadow: 0 0 4px 2px #ccc;
 }
 #header-app-name {
-    color: white;
-    position: absolute;
-}
-#header-app-name {
-    margin-left: 1em;
-    font-size: 1.5em;
+    color: #2179e4;
+    margin: 0 auto;
+    font-size: 1em;
+    background: #fff;
+    padding: 0.5em;
+    width: 3em;
+    text-align: center;
+    border-radius: 0 0 4px 4px;
+    -webkit-border-radius: 0 0 4px 4px;
+    -moz-border-radius: 0 0 4px 4px;
+    -ms-border-radius: 0 0 4px 4px;
+    -o-border-radius: 0 0 4px 4px;
 }
 #header-title {
     bottom: 0;
