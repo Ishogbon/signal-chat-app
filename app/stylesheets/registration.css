@@ -1,0 +1,61 @@
+body {
+    margin: 0;
+}
+#auth-page-header {
+    font-size: 1em;
+    text-align: center;
+    margin-top: 8vh;
+}
+#site-name {
+    width: 16em;
+    font-size: 1.5em;
+    background: #2179e4;
+    color: #fff;
+    width: 4em;
+    padding: 0.25em;
+    border-radius: 0 4px 4px 0;
+    -webkit-border-radius: 0 4px 4px 0;
+    -moz-border-radius: 0 4px 4px 0;
+    -ms-border-radius: 0 4px 4px 0;
+    -o-border-radius: 0 4px 4px 0;
+    text-align: center;
+}
+.form-inputs-bar {
+    margin: 15vh auto 0;
+}
+.registration-input-bars, .registration-button-bars {
+    margin: 5% auto 0;
+    width: 65%;
+    text-align: center;
+}
+.registration-form-input {
+    outline: none;
+    width: 100%;
+    padding: 0.5em;
+    font-size: 1em;
+    border: 1px solid #999;
+    color: #555;
+    box-sizing: border-box;
+    border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    -ms-border-radius: 4px;
+    -o-border-radius: 4px;
+}
+.registration-form-input:focus {
+    border: 2px solid #2179e4;
+}
+.registration-button {
+    background: #2179e4;
+    color: #fff;
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 1em;
+    padding: 0.5em;
+    border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    -ms-border-radius: 4px;
+    -o-border-radius: 4px;
+}
