@@ -1,0 +1,92 @@
+body {
+    margin: 0;
+}
+#auth-page-header {
+    font-size: 1em;
+    text-align: center;
+    margin-top: 8vh;
+}
+#site-name {
+    width: 16em;
+    font-size: 1.5em;
+    background: #2179e4;
+    color: #fff;
+    width: 4em;
+    padding: 0.25em;
+    border-radius: 0 4px 4px 0;
+    -webkit-border-radius: 0 4px 4px 0;
+    -moz-border-radius: 0 4px 4px 0;
+    -ms-border-radius: 0 4px 4px 0;
+    -o-border-radius: 0 4px 4px 0;
+    text-align: center;
+}
+.form-inputs-bar {
+    margin: 20vh auto 0;
+}
+.login-input-bars, .login-button-bars, #other-reg {
+    margin: 5% auto 0;
+    width: 65%;
+    text-align: center;
+}
+#other-reg {
+    font-size: 0.9em;
+}
+#other-reg a {
+    text-decoration: none;
+    color: #2179e4;
+}
+.login-form-input {
+    outline: none;
+    width: 100%;
+    padding: 0.5em;
+    font-size: 1em;
+    border: 1px solid #999;
+    color: #555;
+    box-sizing: border-box;
+    border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    -ms-border-radius: 4px;
+    -o-border-radius: 4px;
+}
+.login-form-input:focus {
+    border: 2px solid #2179e4;
+}
+.login-button {
+    background: #2179e4;
+    color: #fff;
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 1em;
+    padding: 0.5em;
+    cursor: pointer;
+    border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    -ms-border-radius: 4px;
+    -o-border-radius: 4px;
+}
+#form-error-bar {
+    color: #ff3535;
+    text-align: center;
+    margin-top: 2%;
+    display: none;
+}
+@media screen and (min-width: 768px) {
+    body {
+        background-color: #f5f5f5;
+    }
+    #login-form {
+        background-color: #fff;
+        width: 30em;
+        margin: 2em auto;
+        box-shadow: 1px 1px 3px 1px #999;
+        padding: 2em 0;
+        border-radius:  2px;
+        -webkit-border-radius:  2px;
+        -moz-border-radius:  2px;
+        -ms-border-radius:  2px;
+        -o-border-radius:  2px;
+}
+}
