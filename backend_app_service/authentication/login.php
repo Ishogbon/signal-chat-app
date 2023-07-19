@@ -1,5 +1,5 @@
 <?php
-session_start();
+
 // Database connection settings
 $host = "localhost";
 $username = "signal";
@@ -13,6 +13,14 @@ try {
 } catch (PDOException $e) {
   echo "Connection failed: " . $e->getMessage();
   exit();
+}
+
+function setLongLastingCookie($name, $value) {
+    // Set the expiration date to a distant future (e.g., 10 years from now).
+    $expirationDate = time() + (10 * 365 * 24 * 60 * 60); // 10 years in seconds
+
+    // Set the cookie with the far-future expiration date. because it's localhost, I won't be setting the secure to true, if in production, set secure to true
+    setcookie($name, $value, $expirationDate, '/', httponly:true);
 }
 
 // Check if the login form was submitted
@@ -30,8 +38,7 @@ if (isset($_POST["email"], $_POST["password"])) {
   $user_info = $stmt->fetch(PDO::FETCH_ASSOC);
   // If the user exists, log them in
   if ($stmt->rowCount() == 1 && password_verify($password, $user_info["password"])) {
-    // Set the session username
-    $_SESSION["email"] = $email;
+    setLongLastingCookie("HANDLE_TAG", $user_info["handle_tag"]);
 
     echo true;
     exit();

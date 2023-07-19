@@ -1,5 +1,10 @@
 <?php
+if (isset($_COOKIE["HANDLE_TAG"]) && $_COOKIE["HANDLE_TAG"]) {
+    header("HTTP/1.1 302 Found");
 
+    // Set the 'Location' header to the new URL.
+    header("Location: " . "./application.php");
+}
 ?>
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->

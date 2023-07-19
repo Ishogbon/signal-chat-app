@@ -14,15 +14,23 @@ if (empty($firstName) || empty($lastName) || empty($handleTag) || empty($email) 
 // Database connection settings
 $host = "localhost";
 $username = "signal";
-$password = "8BAnEJMPtEBHnz1g";
+$srv_password = "8BAnEJMPtEBHnz1g";
 $database = "signal_chat_app";
 
 // Create a PDO connection
 try {
-    $conn = new PDO("mysql:host=$host;dbname=$database", $username, $password);
+    $conn = new PDO("mysql:host=$host;dbname=$database", $username, $srv_password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die("Connection failed: " . $e->getMessage());
+}
+
+function setLongLastingCookie($name, $value) {
+    // Set the expiration date to a distant future (e.g., 10 years from now).
+    $expirationDate = time() + (10 * 365 * 24 * 60 * 60); // 10 years in seconds
+
+    // Set the cookie with the far-future expiration date. because it's localhost, I won't be setting the secure to true, if in production, set secure to true
+    setcookie($name, $value, $expirationDate, '/', httponly:true);
 }
 
 
@@ -96,6 +104,7 @@ $insertStmt->execute([
 ]);
 
 if ($insertStmt->rowCount() > 0) {
+    setLongLastingCookie("HANDLE_TAG", $handleTag);
     echo true;
 } else {
     echo "Error in registration. Please try again.";
