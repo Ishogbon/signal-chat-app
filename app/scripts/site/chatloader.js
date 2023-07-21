@@ -100,6 +100,7 @@ const chatModule = {
             chat.classList.add('active-chats');
             chat.setAttribute('data-user-handle-tag', message[0]);
             chat.addEventListener('click', () => {
+                // eslint-disable-next-line no-undef
                 activateChatPage(message[0]);
             });
             this.fetchUserNames(message[0], names => {
@@ -121,6 +122,7 @@ const chatModule = {
             chat.classList.add('active-chats');
             chat.setAttribute('data-user-handle-tag', message[0]);
             chat.addEventListener('click', () => {
+                // eslint-disable-next-line no-undef
                 activateChatPage(message[0]);
             });
             this.fetchUserNames(message[0], names => {

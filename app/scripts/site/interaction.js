@@ -51,14 +51,18 @@ function sendMessageToAnotherUser(recipientHandle, message) {
     }
 }
 
+// eslint-disable-next-line no-unused-vars
 function activateChatPage(userHandle) {
     if (userHandle.length > 1) {
         const chatPage = document.getElementById('active-user-chat-page');
         chatPage.setAttribute('data-user-handle-tag', userHandle);
         chatPage.style.display = 'flex';
 
+        // eslint-disable-next-line no-undef
         chatModule.resolveUnreadMessagesToRead(userHandle);
+        // eslint-disable-next-line no-undef
         chatModule.renderActiveChatPage(userHandle);
+        // eslint-disable-next-line no-undef
         chatModule.renderChatsPage();
 
         document.getElementById('user-handle').innerHTML = `( @${userHandle} )`;
@@ -71,6 +75,7 @@ function activateChatPage(userHandle) {
 }
 
 function deactivateChatPage() {
+    // eslint-disable-next-line no-undef
     chatModule.renderChatsPage();
     const activeChatPage = document.getElementById('active-user-chat-page');
     activeChatPage.style.display = 'none';

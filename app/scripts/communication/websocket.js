@@ -8,6 +8,7 @@ socket.onopen = function () {
 
 socket.onmessage = function (event) {
     console.log(`[message] Data received from server: ${event.data}`);
+    // eslint-disable-next-line no-undef
     chatModule.incomingMessage(JSON.parse(event.data));
 };
 
