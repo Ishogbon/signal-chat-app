@@ -74,106 +74,80 @@ else {
         <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
-        <div id="app-main">
-            <header >
-                <div id="header-app-name">
-                    ReText
-                </div>
-                <nav>
-                    <ul id="navigation-sub">
-                        <li class="navigators active-nav" id='chats-page-pointer'>
-                            Chats
-                        </li>
-                        <li class="navigators" id='contacts-page-pointer'>
-                            Contacts
-                        </li>
-                    </ul>
-                </nav>
-                
-            </header>
-            <div id="content-body">
-                <div id="chats-page" class="body-pages">
-                    <div class="active-chats" data-user-handle-tag="jamesfrank">
-                        <div class="user-name">
-                            <span class="user-first-name">James</span> <span class="user-last-name">Frank</span>
-                            <span class="user-handle">( @jamesfrank )</span>
-                        </div>
-                        <div class="recent-message">
-                            <span class="recent-messages-count">1</span><span>Hello John! Are you comming to work today?</span>
-                        </div>
+        <div id="inner-body">
+            <div id="app-main">
+                <header>
+                    <div id="header-app-name">
+                        ReText
                     </div>
-                    <div class="active-chats">
-                        <div class="user-name">
-                            <span class="user-first-name">Ellen</span> <span class="user-last-name">Wright</span>
-                            <span class="user-handle">( @ewright )</span>
-                        </div>
-                        <div class="recent-message">
-                            <span class="recent-messages-count">2</span><span>Yo J, Wanna hangout?</span>
-                        </div>
-                    </div>
-                    <div class="active-chats">
-                        <div class="user-name">
-                            <span class="user-first-name">Ron</span> <span class="user-last-name">Allen</span>
-                            <span class="user-handle">( @ftman )</span>
-                        </div>
-                        <div class="recent-message">
-                            <span>Bro, I just got a promotion, I'm at the bars wanna celebrate?</span>
-                        </div>
-                    </div>
-                    <div class="active-chats">
-                        <div class="user-name">
-                            <span class="user-first-name">Alex</span> <span class="user-last-name">Erman</span>
-                            <span class="user-handle">( @dbizguy )</span>
-                        </div>
-                        <div class="recent-message">
-                            <span>Are you home?</span>
-                        </div>
-                    </div>
-                </div>
-                <div id="contacts-page" class="body-pages page-hider">
-                    <div id="contacts-search-bar">
-                        <input id="user-search-input" placeholder="Search for any user on ReText" />
-                    </div>
-                    <div id="contacts-sub-page">
-                        <!-- <div class="contact">
+                    <nav>
+                        <ul id="navigation-sub">
+                            <li class="navigators active-nav" id='chats-page-pointer'>
+                                Chats
+                            </li>
+                            <li class="navigators" id='contacts-page-pointer'>
+                                Contacts
+                            </li>
+                        </ul>
+                    </nav>
+                    
+                </header>
+                <div id="content-body">
+                    <div id="chats-page" class="body-pages">
+                        <!-- <div class="active-chats" data-user-handle-tag="jamesfrank">
                             <div class="user-name">
-                                <span class="user-first-name">Ron</span> <span class="user-last-name">Allen</span>
-                                <span class="user-handle">( @ftman )</span>
+                                <span class="user-first-name">James</span> <span class="user-last-name">Frank</span>
+                                <span class="user-handle">( @jamesfrank )</span>
                             </div>
-                            <div class="user-about">
-                                <span>Hi, I'm a ReText user!</span>
+                            <div class="recent-message">
+                                <span class="recent-messages-count"> </span><span>Hello John! Are you comming to work today?</span>
                             </div>
                         </div> -->
                     </div>
+                    <div id="contacts-page" class="body-pages page-hider">
+                        <div id="contacts-search-bar">
+                            <input id="user-search-input" placeholder="Search for any user on ReText" />
+                        </div>
+                        <div id="contacts-sub-page">
+                            <!-- <div class="contact">
+                                <div class="user-name">
+                                    <span class="user-first-name">Ron</span> <span class="user-last-name">Allen</span>
+                                    <span class="user-handle">( @ftman )</span>
+                                </div>
+                                <div class="user-about">
+                                    <span>Hi, I'm a ReText user!</span>
+                                </div>
+                            </div> -->
+                        </div>
+                    </div>
+                </div>
+                <script src="./scripts/site/chatloader.js" async defer></script>
+                <script src="./scripts/site/interaction.js" async defer></script>
+                <script src="./scripts/encryption/external_modules/libsignal-protocol-javascript/dist/libsignal-protocol.js" async defer></script>
+                <script src="./scripts/encryption/signal-encryption/session_generators.js" async defer></script>
+                <script src="./scripts/communication/websocket.js" async defer></script>
+            </div>
+            <div id="active-user-chat-page" data-user-handle-tag="">
+                <div id="chat-header">
+                    <button id="exit-active-user-chat-page-btn">
+                        <img src="./images/icons8-back-100.png" />
+                    </button>
+                    <div id="header-user-name">
+                        <span id="user-first-name"></span> <span id="user-last-name"></span>
+                        <span id="user-handle">( @ )</span>
+                    </div>
+                </div>
+                <div id="chats">
+                    <!-- <div class="message-bars"><p class="my-texts chat-texts">I'm coming rn</p></div>
+                    <div class="message-bars"><p class="other-user-texts chat-texts">Alright bro</p></div> -->
+                </div>
+                <div id="message-bar">
+                    <input type="text" placeholder="Start typing..." id="message-input"/>
+                    <button id="message-send"><img src="./images/icons8-send-90.png" /></button>
                 </div>
             </div>
-            <script src="./scripts/site/chatloader.js" async defer></script>
-            <script src="./scripts/site/interaction.js" async defer></script>
-            <script src="./scripts/encryption/external_modules/libsignal-protocol-javascript/dist/libsignal-protocol.js" async defer></script>
-            <script src="./scripts/encryption/signal-encryption/session_generators.js" async defer></script>
-            <script src="./scripts/communication/websocket.js" async defer></script>
         </div>
-        <div id="active-user-chat-page" data-user-handle-tag="ftman">
-            <div id="chat-header">
-                <button id="exit-active-user-chat-page-btn">
-                    <img src="./images/icons8-back-100.png" />
-                </button>
-                <div id="header-user-name">
-                    <span id="user-first-name">Ron</span> <span id"user-last-name">Allen</span>
-                    <span id="user-handle">( @ftman )</span>
-                </div>
-            </div>
-            <div id="chats">
-                <div class="message-bars"><p class="other-user-texts chat-texts">Yo! Jamess whaddup bro</p></div>
-                <div class="message-bars"><p class="other-user-texts chat-texts">I'm at the bar</p></div>
-                <div class="message-bars"><p class="my-texts chat-texts">I'm coming rn</p></div>
-                <div class="message-bars"><p class="other-user-texts chat-texts">Alright bro</p></div>
-            </div>
-            <div id="message-bar">
-                <input type="text" placeholder="Start typing..." id="message-input"/>
-                <button id="message-send"><img src="./images/icons8-send-90.png" /></button>
-            </div>
-        </div>
+        
         
     </body>
 </html>

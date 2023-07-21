@@ -64,7 +64,7 @@
     margin-bottom: 1em; 
 }
 #active-user-chat-page {
-    position:fixed;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
@@ -72,6 +72,8 @@
     background: url(../images/chat-doodle-mobile.png);
     background-size: cover;
     background-repeat: no-repeat;
+    display: none;
+    flex-direction: column;
 }
 #chat-header {
     background-color: #2179e4;
@@ -80,7 +82,6 @@
     right: 0;
     min-height: 5vh;
     padding-top: 1em;
-    position: fixed;
 }
 #exit-active-user-chat-page-btn {
     background-color: transparent;
@@ -93,10 +94,13 @@
     width: 1.2em;
 }
 #header-user-name {
+    margin-left: 0.5em;
     color: white;
 }
 #chats {
-    margin-top: 8vh;
+    margin-top: 1em;
+    height: 85%;
+    max-height: 85%;
     border: 1px solid transparent;
     box-sizing: border-box;
 }
@@ -120,11 +124,10 @@
     background-color: #9ecaff;
 }
 #message-bar {
-    position: fixed;
     width: 95%;
     bottom: 1.5em;
-    left: 50%;
-    transform: translate(-50%, 0);
+    margin: 0 auto;
+    position: relative;
 }
 #message-input {
     outline: none;
@@ -160,8 +163,32 @@
     width: 1.5em;
 }
 
-@media screen and (min-width: 768px) {
+@media screen and (min-width: 600px) {
+    #inner-body {
+        display: flex;
+        flex-direction: row;
+        height: 100vh;
+    }
+    #active-user-chat-page {
+        display: flex;
+        position: static;
+        width: 65%;
+        box-shadow: -3px 0 3px 1px #ddd;
+    }
     #app-main {
-        width: 20em;
+        width: 35%;
+    }
+    #exit-active-user-chat-page-btn {
+        display: none;
+    }
+    header {
+        box-shadow: none;
+    }
+}
+
+@media screen and (min-width: 700px) {
+    #active-user-chat-page {
+        background: url(../images/chat-doodle-desktop.png);
+        background-size: cover;
     }
 }

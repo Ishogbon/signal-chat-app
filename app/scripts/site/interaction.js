@@ -44,17 +44,22 @@ contactsPagePointer.addEventListener('click', () => switchPage(1));
 function sendMessageToAnotherUser(recipientHandle, message) {
     if (message.length > 0) {
         // eslint-disable-next-line no-undef
-        sendMessage(JSON.stringify({
+        chatModule.sendMessage({
             recipient: recipientHandle,
             message,
-        }));
+        });
     }
 }
 
 function activateChatPage(userHandle) {
     if (userHandle.length > 1) {
         const chatPage = document.getElementById('active-user-chat-page');
-        chatPage.style.display = 'block';
+        chatPage.setAttribute('data-user-handle-tag', userHandle);
+        chatPage.style.display = 'flex';
+
+        chatModule.resolveUnreadMessagesToRead(userHandle);
+        chatModule.renderActiveChatPage(userHandle);
+        chatModule.renderChatsPage();
 
         document.getElementById('user-handle').innerHTML = `( @${userHandle} )`;
         const messageInput = document.getElementById('message-input');
@@ -65,16 +70,13 @@ function activateChatPage(userHandle) {
     }
 }
 
-const allActiveChats = document.getElementsByClassName('active-chats');
-
-for (const activeChat of allActiveChats) {
-    activeChat.addEventListener('click', () => {
-        activateChatPage(activeChat.getAttribute('data-user-handle-tag'));
-    });
-}
-
 function deactivateChatPage() {
-    document.getElementById('active-user-chat-page').style.display = 'none';
+    chatModule.renderChatsPage();
+    const activeChatPage = document.getElementById('active-user-chat-page');
+    activeChatPage.style.display = 'none';
+    activeChatPage.setAttribute('data-user-handle-tag', '');
+    activeChatPage.getElementById('user-first-name').innerHTML = '';
+    activeChatPage.getElementById('user-last-name').innerHTML = '';
 }
 
 document.getElementById('exit-active-user-chat-page-btn').addEventListener('click', deactivateChatPage);

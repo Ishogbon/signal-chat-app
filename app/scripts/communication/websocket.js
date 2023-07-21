@@ -8,6 +8,7 @@ socket.onopen = function () {
 
 socket.onmessage = function (event) {
     console.log(`[message] Data received from server: ${event.data}`);
+    chatModule.incomingMessage(JSON.parse(event.data));
 };
 
 socket.onclose = function (event) {
@@ -23,9 +24,3 @@ socket.onclose = function (event) {
 socket.onerror = function (error) {
     console.log(error);
 };
-
-// eslint-disable-next-line no-unused-vars
-function sendMessage(message) {
-    console.log(message);
-    socket.send(message);
-}
