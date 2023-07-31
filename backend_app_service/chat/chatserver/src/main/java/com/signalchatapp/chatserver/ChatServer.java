@@ -1,11 +1,10 @@
 package com.signalchatapp.chatserver;
 
 import java.io.IOException;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpSession;
-import javax.websocket.EncodeException;
 import javax.websocket.EndpointConfig;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -19,38 +18,28 @@ import javax.websocket.server.ServerEndpoint;
         encoders = {MessageEncoder.class},
         decoders = {MessageDecoder.class})
 public class ChatServer {
-    private Session session;
     private String userHandleTag;
-    private static Set<ChatServer> chatServers = new CopyOnWriteArraySet<>();
+    private static Map<String, Session> handleTagToSessionMap = new ConcurrentHashMap<>();
 
     @OnOpen
     public void onOpen(Session session, EndpointConfig config) throws IOException {
     	HttpSession httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
-    	if (httpSession != null && httpSession.getAttribute("handleTag") != null) {
-    		userHandleTag = (String) httpSession.getAttribute("handleTag");
-    	}
-    	else {
-    		session.close();
-    	}
-        this.session = session;
-        chatServers.add(this);
-
+        if (httpSession != null && httpSession.getAttribute("handleTag") != null) {
+            userHandleTag = (String) httpSession.getAttribute("handleTag");
+            handleTagToSessionMap.put(userHandleTag, session);
+        } else {
+            session.close();
+        }
     }
 
     @OnMessage
-    public void onMessage(Session session, Message message) 
-      throws IOException {
-        try {
-			sendMessage(message, userHandleTag);
-		} catch (IOException | EncodeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    public void onMessage(Session session, Message message) {
+		sendMessage(message, userHandleTag);
     }
 
     @OnClose
     public void onClose(Session session) throws IOException {
-        chatServers.remove(this);
+    	handleTagToSessionMap.values().remove(session);
     }
 
     @OnError
@@ -58,18 +47,16 @@ public class ChatServer {
         // Do error handling here
     }
     // Change to sendToRecipient
-    private static void sendMessage(Message message, String sender) 
-      throws IOException, EncodeException {
-    	for (ChatServer endpoint : chatServers) {
-            synchronized (endpoint) {
-                if (endpoint.userHandleTag.equals(message.getRecipient())) {
-                    try {
-                        message.setRecipient(sender);
-                        endpoint.session.getBasicRemote().sendObject(message);
-                    } catch (IOException | EncodeException e) {
-                        e.printStackTrace();
-                    }
-                    break; // Break out of the loop once a match is found
+    private static void sendMessage(Message message, String sender) {
+    	for (Map.Entry<String, Session> entry : handleTagToSessionMap.entrySet()) {
+            String handleTag = entry.getKey();
+            Session session = entry.getValue();
+            if (handleTag.equals(message.getRecipient())) {
+                try {
+                    message.setSender(sender);
+                    session.getAsyncRemote().sendObject(message);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }

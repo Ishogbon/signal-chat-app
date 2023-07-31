@@ -42,22 +42,24 @@ const chatModule = {
             });
         }
     },
-    // For incoming messages, the recipient is the sender
-    incomingMessage(message) {
+    async incomingMessage(message) {
         const userHandleTag = this.chatPage.getAttribute('data-user-handle-tag');
-        if (message.recipient === userHandleTag) {
-            if (typeof this.readChats[message.recipient] !== 'object') {
-                this.readChats[message.recipient] = [];
+        message.message = JSON.parse(message.message);
+        console.log(message);
+        await signalProtocol.decryptMessage(message);
+        if (message.sender === userHandleTag) {
+            if (typeof this.readChats[message.sender] !== 'object') {
+                this.readChats[message.sender] = [];
             }
 
-            this.readChats[message.recipient].push(message);
+            this.readChats[message.sender].push(message);
             this.appendToCurrentActivePage(userHandleTag, message);
         } else {
-            if (typeof this.unreadChats[message.recipient] !== 'object') {
-                this.unreadChats[message.recipient] = [];
+            if (typeof this.unreadChats[message.sender] !== 'object') {
+                this.unreadChats[message.sender] = [];
             }
 
-            this.unreadChats[message.recipient].push(message);
+            this.unreadChats[message.sender].push(message);
         }
 
         this.renderChatsPage();
@@ -67,7 +69,7 @@ const chatModule = {
         const chats = document.getElementById('chats');
         const chat = document.createElement('div');
         chat.classList.add('message-bars');
-        if (message.recipient === userHandleTag) {
+        if (message.sender === userHandleTag) {
             chat.innerHTML = `<p class="other-user-texts chat-texts">${message.message}</p>`;
             chats.append(chat);
         } else {
@@ -95,6 +97,7 @@ const chatModule = {
     renderChatsPage() {
         const chatPage = document.getElementById('chats-page');
         chatPage.innerHTML = '';
+        const unreadChatsRendered = new Set();
         for (const message of Object.entries(this.unreadChats)) {
             const chat = document.createElement('div');
             chat.classList.add('active-chats');
@@ -115,28 +118,31 @@ const chatModule = {
                 `;
                 chatPage.append(chat);
             });
+            unreadChatsRendered.add(message[0]);
         }
 
         for (const message of Object.entries(this.readChats)) {
-            const chat = document.createElement('div');
-            chat.classList.add('active-chats');
-            chat.setAttribute('data-user-handle-tag', message[0]);
-            chat.addEventListener('click', () => {
-                // eslint-disable-next-line no-undef
-                activateChatPage(message[0]);
-            });
-            this.fetchUserNames(message[0], names => {
-                chat.innerHTML = `
-                    <div class="user-name">
-                        <span class="user-first-name">${names.first_name}</span> <span class="user-last-name">${names.last_name}</span>
-                        <span class="user-handle">( @${message[0]} )</span>
-                    </div>
-                    <div class="recent-message">
-                        <span>${message[1][message[1].length - 1].message}</span>
-                    </div>
-                `;
-                chatPage.append(chat);
-            });
+            if (!unreadChatsRendered.has(message[0])) {
+                const chat = document.createElement('div');
+                chat.classList.add('active-chats');
+                chat.setAttribute('data-user-handle-tag', message[0]);
+                chat.addEventListener('click', () => {
+                    // eslint-disable-next-line no-undef
+                    activateChatPage(message[0]);
+                });
+                this.fetchUserNames(message[0], names => {
+                    chat.innerHTML = `
+                        <div class="user-name">
+                            <span class="user-first-name">${names.first_name}</span> <span class="user-last-name">${names.last_name}</span>
+                            <span class="user-handle">( @${message[0]} )</span>
+                        </div>
+                        <div class="recent-message">
+                            <span>${message[1][message[1].length - 1].message}</span>
+                        </div>
+                    `;
+                    chatPage.append(chat);
+                });
+            }
         }
     },
     renderActiveChatPage(userHandleTag) {
@@ -150,23 +156,26 @@ const chatModule = {
             this.appendToCurrentActivePage(userHandleTag, message);
         }
     },
-    sendMessage(message) {
+    async sendMessage(message) {
         const userHandleTag = this.chatPage.getAttribute('data-user-handle-tag');
         if (message.recipient === userHandleTag) {
             if (typeof this.readChats[message.recipient] !== 'object') {
                 this.readChats[message.recipient] = [];
             }
 
-            // eslint-disable-next-line no-undef
-            socket.send(JSON.stringify(message));
-
-            const messageRecipient = message.recipient;
-            // Recipient acts as a sender/receiver depending on the context, since i'm the one sending from my end, need to change to me
-            message.recipient = 'me';
-            this.readChats[messageRecipient].push(message);
+            this.readChats[message.recipient].push(message);
             this.appendToCurrentActivePage(userHandleTag, message);
+
             this.saveChats();
             this.renderChatsPage();
+
+            const encryptedMessage = {...message};
+            if (await signalProtocol.encryptMessage(encryptedMessage)) {
+                // eslint-disable-next-line no-undef
+                console.log("message sent");
+                encryptedMessage.message = JSON.stringify(encryptedMessage.message);
+                socket.send(JSON.stringify(encryptedMessage));
+            }
         }
     },
 };

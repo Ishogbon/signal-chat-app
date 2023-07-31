@@ -1,4 +1,29 @@
 <?php
+function checkAuthWithServer($url, $cookieValue) {
+    // Initialize cURL session.
+    $ch = curl_init();
+
+    // Set the cURL options.
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    curl_setopt($ch, CURLOPT_COOKIE, $cookieValue[0] . '=' . $cookieValue[1]);
+
+    // Execute the cURL request
+    curl_exec($ch);
+
+    // Check if the cURL request was successful and the HTTP status code is 200 (OK)
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    if ($httpCode === 200) {
+        return true; // User is signed in
+    } else {
+        return false; // User is not signed in
+    }
+
+    // Close the cURL session
+    curl_close($ch);
+
+}
 function postCookiesFromReq($url, $postData) {
     // Initialize cURL session.
     $ch = curl_init();
@@ -48,10 +73,15 @@ if (!isset($_COOKIE["HANDLE_TAG"]) && !$_COOKIE["HANDLE_TAG"]) {
     header("Location: " . "./login.php");
 }
 else {
-    if (!isset($_COOKIE["JSESSIONID"])) {
-        $handleTag = $_COOKIE["HANDLE_TAG"];
+    $handleTag = $_COOKIE["HANDLE_TAG"];
+    $jsession = '';
+    if (isset($_COOKIE["JSESSIONID"])) {
+        $jsession = $_COOKIE["JSESSIONID"];
+    }
+    if (!checkAuthWithServer("http://localhost:8080/chatserver/check_authentication", ["JSESSIONID", $jsession])) {
         postCookiesFromReq("http://localhost:8080/chatserver/auth_user_a934_2592_7283_58f3_fh34_2h45", ["handle_tag" => $handleTag]);
     }
+    
 }
 ?>
 <!DOCTYPE html>
@@ -121,10 +151,14 @@ else {
                         </div>
                     </div>
                 </div>
+                <script>
+                    const clientHandleTag = <?php echo $handleTag ? '"'.$handleTag.'"' : ''; ?>
+                </script>
                 <script src="./scripts/site/chatloader.js" async defer></script>
                 <script src="./scripts/site/interaction.js" async defer></script>
                 <script src="./scripts/encryption/external_modules/libsignal-protocol-javascript/dist/libsignal-protocol.js" async defer></script>
-                <script src="./scripts/encryption/signal-encryption/session_generators.js" async defer></script>
+                <script src="./scripts/encryption/signal-encryption/signal_store.js" async defer></script>
+                <script src="./scripts/encryption/signal-encryption/signal_interface.js" async defer></script>
                 <script src="./scripts/communication/websocket.js" async defer></script>
             </div>
             <div id="active-user-chat-page" data-user-handle-tag="">

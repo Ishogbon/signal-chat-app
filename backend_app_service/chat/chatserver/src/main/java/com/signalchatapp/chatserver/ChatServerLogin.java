@@ -22,12 +22,10 @@ public class ChatServerLogin extends HttpServlet {
 			session.setAttribute("handleTag", handleTag);
 			
 			response.setStatus(HttpServletResponse.SC_OK);
-			try {
-				response.getWriter().write("yo mum bro: " + handleTag);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+
+		}
+		else {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		}
 	}
 }

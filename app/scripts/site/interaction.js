@@ -45,6 +45,7 @@ function sendMessageToAnotherUser(recipientHandle, message) {
     if (message.length > 0) {
         // eslint-disable-next-line no-undef
         chatModule.sendMessage({
+            sender: clientHandleTag || 'me',
             recipient: recipientHandle,
             message,
         });
@@ -80,8 +81,8 @@ function deactivateChatPage() {
     const activeChatPage = document.getElementById('active-user-chat-page');
     activeChatPage.style.display = 'none';
     activeChatPage.setAttribute('data-user-handle-tag', '');
-    activeChatPage.getElementById('user-first-name').innerHTML = '';
-    activeChatPage.getElementById('user-last-name').innerHTML = '';
+    document.getElementById('user-first-name').innerHTML = '';
+    document.getElementById('user-last-name').innerHTML = '';
 }
 
 document.getElementById('exit-active-user-chat-page-btn').addEventListener('click', deactivateChatPage);
