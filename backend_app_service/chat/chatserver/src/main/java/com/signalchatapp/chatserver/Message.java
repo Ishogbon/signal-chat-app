@@ -3,6 +3,7 @@ package com.signalchatapp.chatserver;
 public class Message {
 	private String sender;
     private String recipient;
+    private String messageType;
     private String message;
 
 	public String getMessage() {
@@ -23,5 +24,10 @@ public class Message {
 	public void setSender(String sender) {
 		this.sender = sender;
 	}
-      
+	public String getMessageType() {
+		return messageType;
+	}
+	public void setMessageType(String messageType) {
+		this.messageType = messageType;
+	}
 }

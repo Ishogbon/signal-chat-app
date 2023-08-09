@@ -1,5 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
 body {
     margin: 0;
+    font-family: 'Poppins';
 }
 #auth-page-header {
     font-size: 1em;

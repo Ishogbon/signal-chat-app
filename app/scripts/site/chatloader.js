@@ -4,12 +4,20 @@ const chatModule = {
     unreadChats: {},
     chatPage: document.getElementById('active-user-chat-page'),
     loadChats() {
-        if (!Object.is(localStorage.getItem('readChats'), null)) {
-            this.readChats = JSON.parse(localStorage.getItem('readChats'));
+        try {
+            if (!Object.is(localStorage.getItem('readChats'), null)) {
+                this.readChats = JSON.parse(localStorage.getItem('readChats'));
+            }
+        } catch {
+            this.readChats = {};
         }
 
-        if (!Object.is(localStorage.getItem('unreadChats'), null)) {
-            this.unreadChats = JSON.parse(localStorage.getItem('unreadChats'));
+        try {
+            if (!Object.is(localStorage.getItem('unreadChats'), null)) {
+                this.unreadChats = JSON.parse(localStorage.getItem('unreadChats'));
+            }
+        } catch {
+            this.unreadChats = {};
         }
     },
     saveChats() {
@@ -43,23 +51,56 @@ const chatModule = {
         }
     },
     async incomingMessage(message) {
-        const userHandleTag = this.chatPage.getAttribute('data-user-handle-tag');
+        let userHandleTag = '';
+        try {
+            userHandleTag = this.chatPage.getAttribute('data-user-handle-tag');
+        } catch {}
+
         message.message = JSON.parse(message.message);
         console.log(message);
         await signalProtocol.decryptMessage(message);
-        if (message.sender === userHandleTag) {
-            if (typeof this.readChats[message.sender] !== 'object') {
-                this.readChats[message.sender] = [];
+
+        if (message.messageType === 'group-create') {
+            groupChatModule.receiveNewGroup(message.message);
+            this.renderChatsPage();
+            return;
+        }
+
+        if (message.messageType.startsWith('group-message.')) {
+            const groupId = message.messageType.substring(14);
+            if (!groupChatModule.fetchGroup(groupId)) {
+                return;
             }
 
-            this.readChats[message.sender].push(message);
-            this.appendToCurrentActivePage(userHandleTag, message);
-        } else {
-            if (typeof this.unreadChats[message.sender] !== 'object') {
-                this.unreadChats[message.sender] = [];
-            }
+            if (groupId === userHandleTag) {
+                if (typeof this.readChats[groupId] !== 'object') {
+                    this.readChats[groupId] = [];
+                }
 
-            this.unreadChats[message.sender].push(message);
+                this.readChats[groupId].push(message);
+                this.appendToCurrentActivePage(userHandleTag, message);
+            } else {
+                if (typeof this.unreadChats[groupId] !== 'object') {
+                    this.unreadChats[groupId] = [];
+                }
+
+                this.unreadChats[groupId].push(message);
+            }
+        } else if (message.messageType === 'client-message') {
+            if (message.sender === userHandleTag) {
+                if (typeof this.readChats[message.sender] !== 'object') {
+                    this.readChats[message.sender] = [];
+                }
+
+                this.readChats[message.sender].push(message);
+                this.appendToCurrentActivePage(userHandleTag, message);
+            } else {
+                if (typeof this.unreadChats[message.sender] !== 'object') {
+                    this.unreadChats[message.sender] = [];
+                }
+
+                this.unreadChats[message.sender].push(message);
+            }
         }
 
         this.renderChatsPage();
@@ -69,13 +110,37 @@ const chatModule = {
         const chats = document.getElementById('chats');
         const chat = document.createElement('div');
         chat.classList.add('message-bars');
-        if (message.sender === userHandleTag) {
-            chat.innerHTML = `<p class="other-user-texts chat-texts">${message.message}</p>`;
-            chats.append(chat);
-        } else {
-            chat.innerHTML = `<div class="message-bars"><p class="my-texts chat-texts">${message.message}</p></div>`;
-            chats.append(chat);
+        if (message.messageType === 'client-message') {
+            if (message.sender === userHandleTag) {
+                chat.innerHTML = `<div class="message-bars"><p class="other-user-texts chat-texts">${message.message}</p>`;
+            } else {
+                chat.innerHTML = `<div class="message-bars"><p class="my-texts chat-texts">${message.message}</p></div>`;
+            }
+        } else if (message.sender.length === 0) {
+            chat.innerHTML = `<div class="message-bars"><p class="site-texts chat-texts">${message.message}</p></div>`;
+        } else if (message.messageType.startsWith('group-message')) {
+            if (message.sender === clientHandleTag) {
+                chat.innerHTML = `<div class="message-bars"><p class="my-texts chat-texts">${message.message}</p></div>`;
+            } else {
+                this.fetchUserNames(message.sender, names => {
+                    chat.innerHTML = `<div class="message-bars">
+                        <p class="other-user-texts chat-texts">
+                            <span class='other-user-names'>
+                                <span>${names.first_name}</span>
+                                <span>${names.last_name}</span>
+                                <span>( @${message.sender} )</span>
+                            </span>
+                            </br>
+                            ${message.message}
+                        </p>
+                    </div>`;
+                });
+            }
         }
+
+        chats.append(chat);
+
+        chats.scrollTop = chats.scrollHeight;
     },
     resolveUnreadMessagesToRead(userHandleTag) {
         // If there are no active entry for this user, create for them
@@ -98,38 +163,44 @@ const chatModule = {
         const chatPage = document.getElementById('chats-page');
         chatPage.innerHTML = '';
         const unreadChatsRendered = new Set();
+
+        // Render groups on chatsPage
+        for (const group of groupChatModule.groups) {
+            if (!(typeof this.unreadChats[group.groupId] === 'object') && !(typeof this.readChats[group.groupId] === 'object')) {
+                this.unreadChats[group.groupId] = [{
+                    message: 'Send a message to your group members',
+                    messageType: 'group-message',
+                    recipient: '',
+                    sender: '',
+                }];
+                console.log('creac empty group');
+            }
+        }
+
         for (const message of Object.entries(this.unreadChats)) {
             const chat = document.createElement('div');
             chat.classList.add('active-chats');
             chat.setAttribute('data-user-handle-tag', message[0]);
+
+            const group = groupChatModule.fetchGroup(message[0]);
             chat.addEventListener('click', () => {
-                // eslint-disable-next-line no-undef
-                activateChatPage(message[0]);
+                if (group) {
+                    activateChatPage(message[0], true, group.groupTitle, group.groupId);
+                } else {
+                    activateChatPage(message[0]);
+                }
             });
-            this.fetchUserNames(message[0], names => {
+            if (group) {
                 chat.innerHTML = `
-                    <div class="user-name">
-                        <span class="user-first-name">${names.first_name}</span> <span class="user-last-name">${names.last_name}</span>
-                        <span class="user-handle">( @${message[0]} )</span>
+                    <div class="group-title-name">
+                        <span class="group-name">${group.groupTitle}</span>
                     </div>
                     <div class="recent-message">
-                        <span class="recent-messages-count">&nbsp&nbsp</span><span>${message[1][message[1].length - 1].message}</span>
+                        <span class="recent-messages-count">&nbsp&nbsp</span><span>${message[1][message[1].length - 1].sender || 'ReText'}: ${message[1][message[1].length - 1].message}</span>
                     </div>
                 `;
                 chatPage.append(chat);
-            });
-            unreadChatsRendered.add(message[0]);
-        }
-
-        for (const message of Object.entries(this.readChats)) {
-            if (!unreadChatsRendered.has(message[0])) {
-                const chat = document.createElement('div');
-                chat.classList.add('active-chats');
-                chat.setAttribute('data-user-handle-tag', message[0]);
-                chat.addEventListener('click', () => {
-                    // eslint-disable-next-line no-undef
-                    activateChatPage(message[0]);
-                });
+            } else {
                 this.fetchUserNames(message[0], names => {
                     chat.innerHTML = `
                         <div class="user-name">
@@ -137,11 +208,53 @@ const chatModule = {
                             <span class="user-handle">( @${message[0]} )</span>
                         </div>
                         <div class="recent-message">
-                            <span>${message[1][message[1].length - 1].message}</span>
+                            <span class="recent-messages-count">&nbsp&nbsp</span><span>${message[1][message[1].length - 1].message}</span>
                         </div>
                     `;
                     chatPage.append(chat);
                 });
+            }
+
+            unreadChatsRendered.add(message[0]);
+        }
+
+        for (const message of Object.entries(this.readChats)) {
+            if (message[1].length >= 1 && !unreadChatsRendered.has(message[0])) {
+                const chat = document.createElement('div');
+                chat.classList.add('active-chats');
+                chat.setAttribute('data-user-handle-tag', message[0]);
+                const group = groupChatModule.fetchGroup(message[0]);
+                chat.addEventListener('click', () => {
+                    if (group) {
+                        activateChatPage(message[0], true, group.groupTitle, group.groupId);
+                    } else {
+                        activateChatPage(message[0]);
+                    }
+                });
+                if (group) {
+                    chat.innerHTML = `
+                        <div class="group-title-name">
+                            <span class="group-name">${group.groupTitle}</span>
+                        </div>
+                        <div class="recent-message">
+                            <span>${message[1][message[1].length - 1].sender || 'ReText'}: ${message[1][message[1].length - 1].message}</span>
+                        </div>
+                    `;
+                    chatPage.append(chat);
+                } else {
+                    this.fetchUserNames(message[0], names => {
+                        chat.innerHTML = `
+                            <div class="user-name">
+                                <span class="user-first-name">${names.first_name}</span> <span class="user-last-name">${names.last_name}</span>
+                                <span class="user-handle">( @${message[0]} )</span>
+                            </div>
+                            <div class="recent-message">
+                                <span>${message[1][message[1].length - 1].message}</span>
+                            </div>
+                        `;
+                        chatPage.append(chat);
+                    });
+                }
             }
         }
     },
@@ -158,21 +271,31 @@ const chatModule = {
     },
     async sendMessage(message) {
         const userHandleTag = this.chatPage.getAttribute('data-user-handle-tag');
-        if (message.recipient === userHandleTag) {
-            if (typeof this.readChats[message.recipient] !== 'object') {
-                this.readChats[message.recipient] = [];
+        if (message.recipient === userHandleTag || message.messageType.startsWith('group-')) {
+            if (message.messageType === 'client-message') {
+                if (typeof this.readChats[message.recipient] !== 'object') {
+                    this.readChats[message.recipient] = [];
+                }
+
+                this.readChats[message.recipient].push(message);
+
+                this.appendToCurrentActivePage(userHandleTag, message);
+                this.saveChats();
+            } else if (message.messageType.startsWith('group-message.')) {
+                const groupId = message.messageType.substring(14);
+ 
+                this.readChats[groupId].push(message);
+
+                this.appendToCurrentActivePage(userHandleTag, message);
+                this.saveChats();
             }
 
-            this.readChats[message.recipient].push(message);
-            this.appendToCurrentActivePage(userHandleTag, message);
-
-            this.saveChats();
             this.renderChatsPage();
 
             const encryptedMessage = {...message};
+            console.log(encryptedMessage);
             if (await signalProtocol.encryptMessage(encryptedMessage)) {
-                // eslint-disable-next-line no-undef
-                console.log("message sent");
+                console.log('message sent');
                 encryptedMessage.message = JSON.stringify(encryptedMessage.message);
                 socket.send(JSON.stringify(encryptedMessage));
             }
@@ -180,5 +303,7 @@ const chatModule = {
     },
 };
 
-chatModule.loadChats();
-chatModule.renderChatsPage();
+window.onload = function () {
+    chatModule.loadChats();
+    chatModule.renderChatsPage();
+};

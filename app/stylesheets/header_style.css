@@ -19,6 +19,23 @@ header {
     -ms-border-radius: 0 0 4px 4px;
     -o-border-radius: 0 0 4px 4px;
 }
+#logout {
+    position: absolute;
+    top: 0;
+    cursor: pointer;
+}
+#logout img {
+    width: 32px;
+}
+#create-group {
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+}
+#create-group img {
+    width: 28px;
+}
 #header-title {
     bottom: 0;
     margin-left: 3em;
@@ -41,4 +58,108 @@ nav ul li{
     display: inline-block;
     width: 50%;
     text-align: center;
+    cursor: pointer;
+}
+#wrapper {
+    position:fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2;
+}
+#wrapper {
+    display: none;
+}
+#group-create-bar {
+    width: 60%; 
+    background-color: #fff;
+    padding: 1em;
+    margin: 5rem auto 0;
+}
+#group-create-bar > h1, #group-create-bar > h2 {
+    text-align: center;
+}
+#group-create-bar > input {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+#turn-off-new-group-bar {
+    position: absolute;
+    float: left;
+    width: 2em;
+    cursor: pointer;
+}
+#group-title-input {
+    width: 80%;
+    padding: 0.5em;
+    margin: 0.5em 0;
+    border: 2px solid #2179e4;
+    outline: none;
+    box-sizing: border-box;
+    border-radius: 6px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    -ms-border-radius: 6px;
+    -o-border-radius: 6px;
+}
+#search-for-user {
+    width: 80%;
+    padding: 0.5em;
+    margin: 0.5em auto 0;
+    background-color: #fff;
+    box-shadow: 0 0 2px 1px #999;
+    box-sizing:border-box;
+}
+#group-user-search-input {
+    width: 95%;
+    box-sizing: border-box;
+    outline: none;
+    border: none;
+    border-bottom: 2px solid #999;
+}
+#group-user-search-input:focus {
+    border-color: #2179e4;
+}
+#group-members-to-add {
+    text-align: left;
+}
+.new-group-members {
+    display: inline-block;
+    padding: 0.4em;
+    background:#2179e4;
+    margin-left: 0.4em;
+    border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    -ms-border-radius: 4px;
+    -o-border-radius: 4px;
+}
+.new-group-member-user-handle {
+    color: white;
+}
+.remove-member-button {
+    width: 16px;
+    margin-bottom: -0.4em;
+    cursor: pointer;
+}
+#create-new-group-bar {
+    text-align: right;
+    margin-top: 1em;
+}
+#create-new-group {
+    background:#2179e4;
+    color: white;
+    padding: 0.5em;
+    border: none;
+    outline: none;
+    width: 30%;
+    cursor: pointer;
+    border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    -ms-border-radius: 4px;
+    -o-border-radius: 4px;
 }

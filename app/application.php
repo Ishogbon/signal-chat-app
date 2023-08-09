@@ -73,7 +73,8 @@ if (!isset($_COOKIE["HANDLE_TAG"]) && !$_COOKIE["HANDLE_TAG"]) {
     header("Location: " . "./login.php");
 }
 else {
-    $handleTag = $_COOKIE["HANDLE_TAG"];
+    require('../backend_app_service/functions/securer.php');
+    $handleTag = decrypt_data($_COOKIE["HANDLE_TAG"]);
     $jsession = '';
     if (isset($_COOKIE["JSESSIONID"])) {
         $jsession = $_COOKIE["JSESSIONID"];
@@ -81,7 +82,6 @@ else {
     if (!checkAuthWithServer("http://localhost:8080/chatserver/check_authentication", ["JSESSIONID", $jsession])) {
         postCookiesFromReq("http://localhost:8080/chatserver/auth_user_a934_2592_7283_58f3_fh34_2h45", ["handle_tag" => $handleTag]);
     }
-    
 }
 ?>
 <!DOCTYPE html>
@@ -109,6 +109,35 @@ else {
                 <header>
                     <div id="header-app-name">
                         ReText
+                    </div>
+                    <span id="logout"><image id="logout-image" src="./images/logout-48.png"/></span>
+                    <span id="create-group"><image id="crate-group-image" src="./images/group-60.png" onclick="groupChatModule.onNewGroupBar()"/></span>
+                    <div id="wrapper">
+                        <div id="group-create-bar">
+                            <img id="turn-off-new-group-bar" src="./images/black-cancel-60.png" onclick="groupChatModule.offNewGroupBar()"/>
+                            <h1>Create Group</h1>
+                            <input type="text" id="group-title-input" placeholder="Enter group title (min: 6 chars)">
+                            <div id="search-for-user">
+                                <input id="group-user-search-input" placeholder="Search for user to add (min: 1 user)" />
+                                <div id="searched-users">
+                                    <div class="user-name">
+                                        <!-- <span class="user-first-name">Ron</span> <span class="user-last-name">Allen</span>
+                                        <br />
+                                        <span class="user-handle">( @ftman )</span> -->
+                                    </div>
+                                </div>
+                            </div>
+                            <h2>Group Members</h2>
+                            <div id="group-members-to-add">
+                                <h3>Admin</h3>
+                                <div id="group-admins"></div>
+                                <h3>Members</h3>
+                                <div id="group-members"></div>
+                            </div>
+                            <div id="create-new-group-bar">
+                                <button id="create-new-group" onclick="groupChatModule.publishGroup()">Create</button>
+                            </div>
+                        </div>
                     </div>
                     <nav>
                         <ul id="navigation-sub">
@@ -152,9 +181,10 @@ else {
                     </div>
                 </div>
                 <script>
-                    const clientHandleTag = <?php echo $handleTag ? '"'.$handleTag.'"' : ''; ?>
+                    const clientHandleTag = <?php echo $handleTag ? '"'.$handleTag.'";' : '"";'; ?>
                 </script>
                 <script src="./scripts/site/chatloader.js" async defer></script>
+                <script src="./scripts/site/groupChatloader.js" async defer></script>
                 <script src="./scripts/site/interaction.js" async defer></script>
                 <script src="./scripts/encryption/external_modules/libsignal-protocol-javascript/dist/libsignal-protocol.js" async defer></script>
                 <script src="./scripts/encryption/signal-encryption/signal_store.js" async defer></script>

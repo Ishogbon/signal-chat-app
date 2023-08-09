@@ -47,13 +47,14 @@ function sendMessageToAnotherUser(recipientHandle, message) {
         chatModule.sendMessage({
             sender: clientHandleTag || 'me',
             recipient: recipientHandle,
+            messageType: 'client-message',
             message,
         });
     }
 }
 
 // eslint-disable-next-line no-unused-vars
-function activateChatPage(userHandle) {
+function activateChatPage(userHandle, isGroup = false, groupTitle, groupId) {
     if (userHandle.length > 1) {
         const chatPage = document.getElementById('active-user-chat-page');
         chatPage.setAttribute('data-user-handle-tag', userHandle);
@@ -66,12 +67,20 @@ function activateChatPage(userHandle) {
         // eslint-disable-next-line no-undef
         chatModule.renderChatsPage();
 
-        document.getElementById('user-handle').innerHTML = `( @${userHandle} )`;
         const messageInput = document.getElementById('message-input');
-        document.getElementById('message-send').onclick = () => {
-            sendMessageToAnotherUser(userHandle, messageInput.value);
-            messageInput.value = '';
-        };
+        if (isGroup) {
+            document.getElementById('user-handle').innerHTML = groupTitle;
+            document.getElementById('message-send').onclick = () => {
+                groupChatModule.sendGroupMessage(groupId, messageInput.value);
+                messageInput.value = '';
+            };
+        } else {
+            document.getElementById('user-handle').innerHTML = `( @${userHandle} )`;
+            document.getElementById('message-send').onclick = () => {
+                sendMessageToAnotherUser(userHandle, messageInput.value);
+                messageInput.value = '';
+            };
+        }
     }
 }
 
@@ -143,3 +152,65 @@ function handleInputChange(event) {
 // Attach the handleInputChange function to the input element's input event
 document.getElementById('user-search-input').addEventListener('input', handleInputChange);
 
+// Set logout
+document.getElementById('logout').onclick = function () {
+    localStorage.clear();
+    window.location.href = 'http://localhost/signal_chat_app/backend_app_service/authentication/logout.php';
+};
+
+// Function to search for uses to add to group
+function searchPotentialGroupUsers(event) {
+    const inputValue = event.target.value;
+
+    // Check if the input value is not empty
+    if (inputValue.trim()) {
+        // Send the input value to the user_search.php script using AJAX
+        const xhr = new XMLHttpRequest();
+        const url = 'http://localhost/signal_chat_app/backend_app_service/functions/user_search.php?handle_tag=' + inputValue;
+        xhr.open('GET', url, true);
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                // Parse the response and generate elements or show 'No users found'
+                let response = null;
+                try {
+                    response = JSON.parse(xhr.responseText);
+                } catch {
+                    console.log('Error decoding server response, most likely server error has occured');
+                    return false;
+                }
+
+                const resultsContainer = document.getElementById('searched-users');
+                resultsContainer.innerHTML = ''; // Clear previous results
+
+                if (response.length === 0) {
+                    const noUsersElement = document.createElement('div');
+                    noUsersElement.textContent = 'No users found';
+                    resultsContainer.appendChild(noUsersElement);
+                } else {
+                    // Loop through the search results and generate elements
+                    response.forEach(user => {
+                        const userElement = document.createElement('div');
+                        userElement.className = 'contact';
+                        userElement.innerHTML = `
+                            <div class='user-name' onclick='groupChatModule.addMemberToNewGroup("${user.handle_tag}")'>
+                                <span class='user-first-name'>${user.first_name}</span>
+                                <span class='user-last-name'>${user.last_name}</span>
+                                <br />
+                                <span class='user-handle'>( ${user.handle_tag} )</span>
+                            </div>
+                        `;
+                        resultsContainer.appendChild(userElement);
+                    });
+                }
+            }
+        };
+
+        xhr.send();
+    } else {
+        // If the input is empty, clear the search results
+        document.getElementById('searched-users').innerHTML = '';
+    }
+}
+
+document.getElementById('group-user-search-input').addEventListener('input', searchPotentialGroupUsers);

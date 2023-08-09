@@ -37,6 +37,9 @@ const signalProtocol = {
             this.signedPreKey = await this.signalStore.loadSignedPreKey(this.registrationId - 1);
         }
 
+        this.generatePreKeys();
+    },
+    async generatePreKeys(keysCount = 100) {
         function hasValueByPartialKey(obj, partialKey) {
             for (const key in obj) {
                 if (key.includes(partialKey) && obj[key]) {
@@ -48,8 +51,7 @@ const signalProtocol = {
         }
 
         if (!hasValueByPartialKey(this.signalStore.store, 'KeypreKey')) {
-            const preKeyCount = 10;
-            for (let i = 0; i < preKeyCount; i++) {
+            for (let i = 0; i < keysCount; i++) {
                 const baseKeyId = this.registrationId + i + 1;
                 const preKey = await libsignal.KeyHelper.generatePreKey(baseKeyId);
                 this.signalStore.storePreKey(baseKeyId, preKey.keyPair);
@@ -106,10 +108,13 @@ const signalProtocol = {
         });
     },
     decryptMessage(message) {
+        // Because the signal session terminates on the recipient of a new message on the session, remove from active sessions so new one can be generated on another send
+        this.recipientsSessions.delete(message.sender);
         const signalMessageFromAddress = new libsignal.SignalProtocolAddress(this.hash(message.sender), 0);
         const sessionCipher = new libsignal.SessionCipher(this.signalStore, signalMessageFromAddress);
         return sessionCipher.decryptPreKeyWhisperMessage(message.message.body, 'binary').then(plaintext => {
             message.message = window.lsUtil.toString(plaintext);
+            this.generatePreKeys();
             console.log('Decrypted message successfully');
             console.log(this.signalStore.store);
             return true;
@@ -187,51 +192,3 @@ const signalProtocol = {
 window.addEventListener('load', () => {
     signalProtocol.generateKeysAndIDs(clientHandleTag);
 });
-// // Gpt generated code
-
-// Promise.all([identityKeyPair, registrationId]).then(results => {
-//     const identityKeyPair = results[0];
-//     const registrationId = results[1];
-
-//     // Store identityKeyPair and registrationId in persistent storage
-// });
-
-// // Generate prekeys
-// const baseKeyId = 1;
-// const preKeyCount = 100;
-// const preKeys = libsignal.KeyHelper.generatePreKeys(baseKeyId, preKeyCount);
-
-// preKeys.then(keys => {
-//     // Store prekeys in persistent storage
-// });
-
-// // Generate signed prekey
-// const signedPreKeyId = 1;
-// const signedPreKey = libsignal.KeyHelper.generateSignedPreKey(identityKeyPair, signedPreKeyId);
-
-// signedPreKey.then(key => {
-//     // Store signed prekey in persistent storage
-// });
-
-// // To initiate a session
-// const recipientAddress = new libsignal.SignalProtocolAddress(recipientId, recipientDeviceId);
-// const sessionBuilder = new libsignal.SessionBuilder(store, recipientAddress);
-
-// // Assume we have retrieved recipient's prekey bundle from server
-// sessionBuilder.processPreKey(preKeyBundle).then(() => {
-//     // Session is now established and we can encrypt messages
-//     const message = 'Hello, world!';
-//     const sessionCipher = new libsignal.SessionCipher(store, recipientAddress);
-//     sessionCipher.encrypt(message).then(ciphertext => {
-//         // Send ciphertext.body to recipient
-//     });
-// });
-
-// // To handle an incoming message
-// const senderAddress = new libsignal.SignalProtocolAddress(senderId, senderDeviceId);
-// const sessionCipher = new libsignal.SessionCipher(store, senderAddress);
-
-// // Assume we have received a message from sender
-// sessionCipher.decryptWhisperMessage(ciphertext.body, 'binary').then(plaintext => {
-//     // Handle plaintext
-// });

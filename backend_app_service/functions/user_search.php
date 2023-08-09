@@ -1,5 +1,5 @@
 <?php
-
+require('../functions/securer.php');
 // Database connection settings
 $host = "localhost";
 $username = "signal";
@@ -22,7 +22,7 @@ try {
         if(isset($_COOKIE["HANDLE_TAG"]) && !empty($_COOKIE["HANDLE_TAG"])) {
             // Loop through the array and use unset() to remove the element with the handle
             for($i=0; $i < count($users); $i++) {
-                if ($users[$i]["handle_tag"] == $_COOKIE["HANDLE_TAG"]) {
+                if ($users[$i]["handle_tag"] == decrypt_data($_COOKIE["HANDLE_TAG"])) {
                     array_splice($users, $i, 1);
                     break;
                 }

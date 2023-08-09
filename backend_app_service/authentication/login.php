@@ -1,5 +1,5 @@
 <?php
-
+require('../functions/securer.php');
 // Database connection settings
 $host = "localhost";
 $username = "signal";
@@ -20,7 +20,7 @@ function setLongLastingCookie($name, $value) {
     $expirationDate = time() + (10 * 365 * 24 * 60 * 60); // 10 years in seconds
 
     // Set the cookie with the far-future expiration date. because it's localhost, I won't be setting the secure to true, if in production, set secure to true
-    setcookie($name, $value, $expirationDate, '/', httponly:true);
+    setcookie($name, encrypt_data($value), $expirationDate, '/', httponly:true);
 }
 
 // Check if the login form was submitted
