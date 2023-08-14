@@ -66,33 +66,31 @@ const signalProtocol = {
         }
     },
     async buildEncryptSession(userHandleTag) {
-        if (!this.recipientsSessions.has(userHandleTag)) {
-            const keys = await this.fetchUserKeyFromServer(userHandleTag);
-            if (!keys) {
-                return;
-            }
-
-            keys.identityKey = window.lsUtil.base64ToArrayBuffer(keys.identityKey);
-            try {
-                keys.preKey.publicKey = window.lsUtil.base64ToArrayBuffer(keys.preKey.publicKey);
-            } catch {
-            }
-
-            keys.signedPreKey.publicKey = window.lsUtil.base64ToArrayBuffer(keys.signedPreKey.publicKey);
-            keys.signedPreKey.signature = window.lsUtil.base64ToArrayBuffer(keys.signedPreKey.signature);
-
-            const recipientAddress = new libsignal.SignalProtocolAddress(keys.registrationId, 0);
-            const sessionBuilder = new libsignal.SessionBuilder(this.signalStore, recipientAddress);
-            return sessionBuilder.processPreKey(keys)
-                .then(() => {
-                    console.log('Success! Session Established!');
-                    this.recipientsSessions.add(userHandleTag);
-                    console.log(this.signalStore.store);
-                }).catch(err => {
-                    console.log('Failed!');
-                    console.log(err);
-                });
+        const keys = await this.fetchUserKeyFromServer(userHandleTag);
+        if (!keys) {
+            return;
         }
+
+        keys.identityKey = window.lsUtil.base64ToArrayBuffer(keys.identityKey);
+        try {
+            keys.preKey.publicKey = window.lsUtil.base64ToArrayBuffer(keys.preKey.publicKey);
+        } catch {
+        }
+
+        keys.signedPreKey.publicKey = window.lsUtil.base64ToArrayBuffer(keys.signedPreKey.publicKey);
+        keys.signedPreKey.signature = window.lsUtil.base64ToArrayBuffer(keys.signedPreKey.signature);
+
+        const recipientAddress = new libsignal.SignalProtocolAddress(keys.registrationId, 0);
+        const sessionBuilder = new libsignal.SessionBuilder(this.signalStore, recipientAddress);
+        return sessionBuilder.processPreKey(keys)
+            .then(() => {
+                console.log('Success! Session Established!');
+                this.recipientsSessions.add(userHandleTag);
+                console.log(this.signalStore.store);
+            }).catch(err => {
+                console.log('Failed!');
+                console.log(err);
+            });
     },
     async encryptMessage(message) {
         await this.buildEncryptSession(message.recipient);
