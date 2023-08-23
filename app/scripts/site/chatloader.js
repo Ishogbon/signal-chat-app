@@ -51,6 +51,7 @@ const chatModule = {
         }
     },
     async incomingMessage(message) {
+        message.messageReceivedDuration = Date.now() - message.messageReceivedDuration;
         let userHandleTag = '';
         try {
             userHandleTag = this.chatPage.getAttribute('data-user-handle-tag');
@@ -283,7 +284,7 @@ const chatModule = {
                 this.saveChats();
             } else if (message.messageType.startsWith('group-message.')) {
                 const groupId = message.messageType.substring(14);
- 
+
                 this.readChats[groupId].push(message);
 
                 this.appendToCurrentActivePage(userHandleTag, message);
@@ -293,10 +294,11 @@ const chatModule = {
             this.renderChatsPage();
 
             const encryptedMessage = {...message};
-            console.log(encryptedMessage);
             if (await signalProtocol.encryptMessage(encryptedMessage)) {
                 console.log('message sent');
                 encryptedMessage.message = JSON.stringify(encryptedMessage.message);
+                encryptedMessage.messageSendDuration = Date.now();
+                console.log(encryptedMessage);
                 socket.send(JSON.stringify(encryptedMessage));
             }
         }

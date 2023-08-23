@@ -8,6 +8,7 @@ const signalProtocol = {
     signedPreKey: {},
     recipientsSessions: new Set(),
     async generateKeysAndIDs(handleTag) {
+        let timestamp = Date.now();
         this.signalStore = new window.SignalProtocolStore();
         // Generate identity key pair and registration id
 
@@ -21,10 +22,13 @@ const signalProtocol = {
 
         if (!this.signalStore.get('identityKey') || await !this.signalStore.loadSignedPreKey(this.registrationId - 1)) {
             console.log('Generating Keys');
+            timestamp = Date.now();
             this.identityKeyPair = await libsignal.KeyHelper.generateIdentityKeyPair();
             this.signalStore.put('identityKey', this.identityKeyPair);
             this.publishIdentityKeyToServer({pubKey: window.lsUtil.arrayBufferToBase64(this.identityKeyPair.pubKey)});
+            console.log('Identity Key Generation Duration:', Date.now() - timestamp + 'ms');
 
+            timestamp = Date.now();
             this.signedPreKey = await libsignal.KeyHelper.generateSignedPreKey(this.identityKeyPair, this.registrationId - 1);
             this.signalStore.storeSignedPreKey(this.registrationId - 1, this.signedPreKey);
             this.publishSignedKeysToServer({
@@ -32,6 +36,7 @@ const signalProtocol = {
                 pubKey: window.lsUtil.arrayBufferToBase64(this.signedPreKey.keyPair.pubKey),
                 signature: window.lsUtil.arrayBufferToBase64(this.signedPreKey.signature),
             });
+            console.log('Signed Key Generation Duration:', Date.now() - timestamp + 'ms');
         } else {
             this.identityKeyPair = this.signalStore.get('identityKey');
             this.signedPreKey = await this.signalStore.loadSignedPreKey(this.registrationId - 1);
@@ -51,6 +56,7 @@ const signalProtocol = {
         }
 
         if (!hasValueByPartialKey(this.signalStore.store, 'KeypreKey')) {
+            let timestamp = Date.now();
             for (let i = 0; i < keysCount; i++) {
                 const baseKeyId = this.registrationId + i + 1;
                 const preKey = await libsignal.KeyHelper.generatePreKey(baseKeyId);
@@ -63,6 +69,9 @@ const signalProtocol = {
             }
 
             this.publishPreKeysToServer(this.preKeysToSend);
+
+            console.log('Prekeys Generation Duration:', Date.now() - timestamp + 'ms');
+            console.log('Generated a total keys of:', keysCount);
         }
     },
     async buildEncryptSession(userHandleTag) {
@@ -93,6 +102,7 @@ const signalProtocol = {
             });
     },
     async encryptMessage(message) {
+        const timestamp = Date.now();
         await this.buildEncryptSession(message.recipient);
         const signalMessageToAddress = new libsignal.SignalProtocolAddress(this.hash(message.recipient), 0);
         const sessionCipher = new libsignal.SessionCipher(this.signalStore, signalMessageToAddress);
@@ -100,18 +110,21 @@ const signalProtocol = {
         return sessionCipher.encrypt(new TextEncoder('utf-8').encode(message.message)).then(ciphertext => {
             message.message = ciphertext;
             console.log('Encrypted message successfully');
+            message.encryptDuration = Date.now() - timestamp;
             return true;
         }).catch(err => {
             console.log(err);
         });
     },
     decryptMessage(message) {
+        const timestamp = Date.now();
         // Because the signal session terminates on the recipient of a new message on the session, remove from active sessions so new one can be generated on another send
         this.recipientsSessions.delete(message.sender);
         const signalMessageFromAddress = new libsignal.SignalProtocolAddress(this.hash(message.sender), 0);
         const sessionCipher = new libsignal.SessionCipher(this.signalStore, signalMessageFromAddress);
         return sessionCipher.decryptPreKeyWhisperMessage(message.message.body, 'binary').then(plaintext => {
             message.message = window.lsUtil.toString(plaintext);
+            message.decryptDuration = Date.now() - timestamp;
             this.generatePreKeys();
             console.log('Decrypted message successfully');
             console.log(this.signalStore.store);

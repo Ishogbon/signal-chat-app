@@ -49,6 +49,11 @@ function sendMessageToAnotherUser(recipientHandle, message) {
             recipient: recipientHandle,
             messageType: 'client-message',
             message,
+            encryptDuration: 0,
+            messageSendDuration: 0,
+            serverProcessTime: 0,
+            messageReceivedDuration: 0,
+            decryptDuration: 0,
         });
     }
 }

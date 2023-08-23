@@ -5,6 +5,43 @@ public class Message {
     private String recipient;
     private String messageType;
     private String message;
+    
+	private int encryptDuration;
+    private long messageSendDuration;
+    private long serverProcessTime;
+    private long messageReceivedDuration;
+    private int decryptDuration;
+    
+    public int getEncryptDuration() {
+		return encryptDuration;
+	}
+	public void setEncryptDuration(int encryptDuration) {
+		this.encryptDuration = encryptDuration;
+	}
+	public long getMessageSendDuration() {
+		return messageSendDuration;
+	}
+	public void setMessageSendDuration(long messageSendDuration) {
+		this.messageSendDuration = messageSendDuration;
+	}
+	public long getServerProcessTime() {
+		return serverProcessTime;
+	}
+	public void setServerProcessTime(long serverProcessTime) {
+		this.serverProcessTime = serverProcessTime;
+	}
+	public long getMessageReceivedDuration() {
+		return messageReceivedDuration;
+	}
+	public void setMessageReceivedDuration(long messageReceivedDuration) {
+		this.messageReceivedDuration = messageReceivedDuration;
+	}
+	public int getDecryptDuration() {
+		return decryptDuration;
+	}
+	public void setDecryptDuration(int decryptDuration) {
+		this.decryptDuration = decryptDuration;
+	}
 
 	public String getMessage() {
 		return message;

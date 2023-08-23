@@ -48,6 +48,9 @@ public class ChatServer {
 
     @OnMessage
     public void onMessage(Session session, Message message) {
+    	// Sets the amount of time it took for the message to arrive at the server
+    	message.setMessageSendDuration((int) (System.currentTimeMillis() - message.getMessageSendDuration()));
+    	message.setServerProcessTime(System.currentTimeMillis());
 		boolean message_successfully_sent = sendMessage(message, userHandleTag);
 		if (!message_successfully_sent) {
 			message.setSender(userHandleTag);
@@ -120,6 +123,9 @@ public class ChatServer {
             if (handleTag.equals(message.getRecipient())) {
                 try {
                     message.setSender(sender);
+                    message.setServerProcessTime(System.currentTimeMillis() - message.getServerProcessTime());
+                    // Sets the timestamp the message left the server
+                    message.setMessageReceivedDuration(System.currentTimeMillis());
                     session.getAsyncRemote().sendObject(message);
                     message_sent = true;
                 } catch (Exception e) {
